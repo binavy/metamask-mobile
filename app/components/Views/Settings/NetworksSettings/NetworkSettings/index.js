@@ -543,21 +543,29 @@ export class NetworkSettings extends PureComponent {
           networkConfigurations?.[chainId]?.blockExplorerUrls[
             networkConfigurations?.[chainId]?.defaultBlockExplorerUrlIndex
           ];
-        rpcUrl =
-          networkConfigurations?.[chainId]?.rpcEndpoints[
-            networkConfigurations?.[chainId]?.defaultRpcEndpointIndex
-          ]?.url;
-        rpcName =
-          networkConfigurations?.[chainId]?.rpcEndpoints[
-            networkConfigurations?.[chainId]?.defaultRpcEndpointIndex
-          ]?.type ??
-          networkConfigurations?.[chainId]?.rpcEndpoints[
-            networkConfigurations?.[chainId]?.defaultRpcEndpointIndex
-          ]?.name;
-        rpcUrls = networkConfigurations?.[chainId]?.rpcEndpoints;
-        blockExplorerUrls = networkConfigurations?.[chainId]?.blockExplorerUrls;
-
-        ticker = networkConfigurations?.[chainId]?.nativeCurrency;
+        // 确保RPC配置正确初始化
+        const networkConfig = networkConfigurations?.[chainId];
+        if (networkConfig) {
+          rpcUrl = networkConfig.rpcEndpoints[networkConfig.defaultRpcEndpointIndex]?.url;
+          rpcName = networkConfig.rpcEndpoints[networkConfig.defaultRpcEndpointIndex]?.name;
+          rpcUrls = networkConfig.rpcEndpoints;
+          blockExplorerUrls = networkConfig.blockExplorerUrls;
+          selectedRpcEndpointIndex = networkConfig.defaultRpcEndpointIndex;
+          ticker = networkConfig.nativeCurrency;
+        } else {
+          // 如果没有找到配置，使用默认值
+          rpcUrl = networkInformation.rpcEndpoint;
+          rpcName = networkInformation.name;
+          rpcUrls = [{
+            url: networkInformation.rpcEndpoint,
+            networkClientId: networkInformation.networkClientId,
+            type: networkInformation.type,
+            name: networkInformation.name
+          }];
+          blockExplorerUrls = [networkInformation.blockExplorerUrl];
+          selectedRpcEndpointIndex = 0;
+          ticker = networkInformation.ticker || 'R';
+        }
       } else {
         const networkConfiguration = Object.values(networkConfigurations).find(
           ({ rpcEndpoints, defaultRpcEndpointIndex }) =>
@@ -565,30 +573,35 @@ export class NetworkSettings extends PureComponent {
             rpcEndpoints[defaultRpcEndpointIndex].networkClientId ===
               networkTypeOrRpcUrl,
         );
-        nickname = networkConfiguration?.name;
-        chainId = networkConfiguration?.chainId;
-        blockExplorerUrl =
-          networkConfiguration?.blockExplorerUrls[
-            networkConfiguration?.defaultBlockExplorerUrlIndex
-          ];
-        ticker = networkConfiguration?.nativeCurrency;
-        editable = true;
-        rpcUrl =
-          networkConfigurations?.[chainId]?.rpcEndpoints[
-            networkConfigurations?.[chainId]?.defaultRpcEndpointIndex
-          ]?.url;
-        rpcUrls = networkConfiguration?.rpcEndpoints;
-        blockExplorerUrls = networkConfiguration?.blockExplorerUrls;
-        rpcName =
-          networkConfiguration?.rpcEndpoints[
-            networkConfiguration?.defaultRpcEndpointIndex
-          ]?.name ??
-          networkConfiguration?.rpcEndpoints[
-            networkConfiguration?.defaultRpcEndpointIndex
-          ]?.type;
 
-        selectedRpcEndpointIndex =
-          networkConfiguration?.defaultRpcEndpointIndex;
+        if (networkConfiguration) {
+          nickname = networkConfiguration.name;
+          chainId = networkConfiguration.chainId;
+          blockExplorerUrl =
+            networkConfiguration.blockExplorerUrls[
+              networkConfiguration.defaultBlockExplorerUrlIndex
+            ];
+          ticker = networkConfiguration.nativeCurrency;
+          editable = true;
+          rpcUrl = networkConfiguration.rpcEndpoints[networkConfiguration.defaultRpcEndpointIndex]?.url;
+          rpcUrls = networkConfiguration.rpcEndpoints;
+          blockExplorerUrls = networkConfiguration.blockExplorerUrls;
+          rpcName = networkConfiguration.rpcEndpoints[networkConfiguration.defaultRpcEndpointIndex]?.name;
+          selectedRpcEndpointIndex = networkConfiguration.defaultRpcEndpointIndex;
+        } else {
+          // 如果找不到配置，使用默认值
+          const defaultConfig = {
+            name: 'Custom Network',
+            url: networkTypeOrRpcUrl,
+            networkClientId: `rpc_custom_${Date.now()}`,
+            type: RpcEndpointType.Custom
+          };
+          nickname = defaultConfig.name;
+          rpcUrl = defaultConfig.url;
+          rpcUrls = [defaultConfig];
+          editable = true;
+          selectedRpcEndpointIndex = 0;
+        }
       }
 
       const initialState =

@@ -8,6 +8,7 @@ import {
   LINEA_GOERLI,
   LINEA_MAINNET,
   LINEA_SEPOLIA,
+  RWA_METAVERSE,
 } from '../../../app/constants/network';
 import { NetworkSwitchErrorType } from '../../../app/constants/error';
 import {
@@ -30,10 +31,10 @@ const ethLogo = require('../../images/eth-logo-new.png');
 const sepoliaLogo = require('../../images/sepolia-logo-dark.png');
 const lineaTestnetLogo = require('../../images/linea-testnet-logo.png');
 const lineaMainnetLogo = require('../../images/linea-mainnet-logo.png');
+const rwaMetaverseLogo = require('../../images/r_token.png');
 
 /* eslint-enable */
 import {
-  PopularList,
   UnpopularNetworkList,
   CustomNetworkImgMapping,
 } from './customNetworks';
@@ -64,13 +65,15 @@ export const NetworkList = {
   [MAINNET]: {
     name: 'Ethereum Main Network',
     shortName: 'Ethereum',
-    networkId: 1,
-    chainId: toHex('1'),
+    networkId: NETWORKS_CHAIN_ID.MAINNET,
+    chainId: NETWORKS_CHAIN_ID.MAINNET,
+    hexChainId: NETWORKS_CHAIN_ID.MAINNET,
     ticker: 'ETH',
+    tickerId: 'eth',
     // Third party color
     // eslint-disable-next-line @metamask/design-tokens/color-no-hex
     color: '#3cc29e',
-    networkType: 'mainnet',
+    networkType: MAINNET,
     imageSource: ethLogo,
     blockExplorerUrl: MAINNET_BLOCK_EXPLORER,
   },
@@ -113,6 +116,18 @@ export const NetworkList = {
     imageSource: lineaTestnetLogo,
     blockExplorerUrl: LINEA_SEPOLIA_BLOCK_EXPLORER,
   },
+  [RWA_METAVERSE]: {
+    name: 'RWA Metaverse',
+    shortName: 'RWA',
+    networkId: 18688,
+    chainId: NETWORKS_CHAIN_ID.RWA_METAVERSE,
+    ticker: 'R',
+    color: '#FF6B4A',
+    networkType: RWA_METAVERSE,
+    imageSource: rwaMetaverseLogo,
+    blockExplorerUrl: 'http://35.220.178.218',
+    rpcEndpoint: 'https://rwa.binavy.com',
+  },
   [RPC]: {
     name: 'Private Network',
     shortName: 'Private',
@@ -140,6 +155,7 @@ export const BLOCKAID_SUPPORTED_CHAIN_IDS = [
   NETWORKS_CHAIN_ID.SCROLL,
   NETWORKS_CHAIN_ID.BERACHAIN,
   NETWORKS_CHAIN_ID.METACHAIN_ONE,
+  NETWORKS_CHAIN_ID.RWA_METAVERSE,
 ];
 
 export const BLOCKAID_SUPPORTED_NETWORK_NAMES = {
@@ -156,6 +172,7 @@ export const BLOCKAID_SUPPORTED_NETWORK_NAMES = {
   [NETWORKS_CHAIN_ID.SCROLL]: 'Scroll',
   [NETWORKS_CHAIN_ID.BERACHAIN]: 'Berachain Artio',
   [NETWORKS_CHAIN_ID.METACHAIN_ONE]: 'Metachain One Mainnet',
+  [NETWORKS_CHAIN_ID.RWA_METAVERSE]: 'RWA Metaverse',
 };
 
 export default NetworkList;
@@ -411,6 +428,8 @@ export const getNetworkNameFromProviderConfig = (providerConfig) => {
     name = 'Ethereum Main Network';
   } else if (providerConfig.chainId === NETWORKS_CHAIN_ID.LINEA_MAINNET) {
     name = 'Linea Main Network';
+  } else if (providerConfig.chainId === NETWORKS_CHAIN_ID.RWA_METAVERSE) {
+    name = 'RWA Metaverse';
   } else {
     const networkType = providerConfig.type;
     name = NetworkList?.[networkType]?.name || NetworkList[RPC].name;
@@ -558,6 +577,7 @@ export function convertNetworkId(value) {
   }
   throw new Error(`Cannot parse as a valid network ID: '${value}'`);
 }
+
 /**
  * This function is only needed to get the `networkId` to support the deprecated
  * `networkVersion` provider property and the deprecated `networkChanged` provider event.
@@ -586,3 +606,17 @@ export const deprecatedGetNetworkId = async () => {
 
 export const isMultichainVersion1Enabled =
   process.env.MM_MULTICHAIN_V1_ENABLED === '1';
+
+export const PopularList = [
+  {
+    name: 'Ethereum Main Network',
+    chainId: NETWORKS_CHAIN_ID.MAINNET,
+    shortName: 'Ethereum',
+    networkType: MAINNET,
+    imageSource: ethLogo,
+    rpcUrl: 'https://mainnet.infura.io/v3/',
+    ticker: 'ETH',
+    tickerId: 'eth',
+  },
+  // ... other networks ...
+];

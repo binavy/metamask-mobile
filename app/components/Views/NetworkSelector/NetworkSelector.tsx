@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
-import images from 'images/image-icons';
+import { toHex } from '@metamask/controller-utils';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 
 // External dependencies.
@@ -40,7 +40,10 @@ import {
   LINEA_SEPOLIA,
   MAINNET,
   SEPOLIA,
+  RWA_METAVERSE,
+  NETWORKS_CHAIN_ID,
 } from '../../../constants/network';
+import images from '../../../images/image-icons';
 import Button from '../../../component-library/components/Buttons/Button/Button';
 import {
   ButtonSize,
@@ -89,6 +92,7 @@ import { useNetworkInfo } from '../../../selectors/selectedNetworkController';
 import { NetworkConfiguration } from '@metamask/network-controller';
 import Logger from '../../../util/Logger';
 import RpcSelectionModal from './RpcSelectionModal/RpcSelectionModal';
+import { RWA_METAVERSE_CONFIG } from '../../../util/networks/customNetworks';
 
 interface infuraNetwork {
   name: string;
@@ -111,10 +115,6 @@ interface NetworkSelectorRouteParams {
 }
 
 const NetworkSelector = () => {
-  const [showPopularNetworkModal, setShowPopularNetworkModal] = useState(false);
-  const [popularNetwork, setPopularNetwork] = useState<ExtendedNetwork>();
-  const [showWarningModal, setShowWarningModal] = useState(false);
-  const [searchString, setSearchString] = useState('');
   const { navigate } = useNavigation();
   const theme = useTheme();
   const { trackEvent } = useMetrics();
@@ -167,6 +167,11 @@ const NetworkSelector = () => {
     networkTypeOrRpcUrl: '',
     isReadOnly: false,
   });
+
+  const [showPopularNetworkModal, setShowPopularNetworkModal] = useState(false);
+  const [popularNetwork, setPopularNetwork] = useState<ExtendedNetwork>();
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [searchString, setSearchString] = useState('');
 
   const onRpcSelect = useCallback(
     async (clientId: string, chainId: `0x${string}`) => {
@@ -236,36 +241,56 @@ const NetworkSelector = () => {
     } = Engine.context;
 
     if (networkConfiguration) {
-      const {
-        name: nickname,
-        chainId,
-        nativeCurrency: ticker,
-        rpcEndpoints,
-        defaultRpcEndpointIndex,
-      } = networkConfiguration;
+      try {
+        const {
+          name: nickname,
+          chainId,
+          nativeCurrency: ticker,
+          rpcEndpoints,
+          defaultRpcEndpointIndex,
+        } = networkConfiguration;
 
-      const networkConfigurationId =
-        rpcEndpoints[defaultRpcEndpointIndex].networkClientId;
+        Logger.log('NetworkSelector::onSetRpcTarget - Switching to network:', {
+          nickname,
+          chainId,
+          ticker,
+          rpcEndpoint: rpcEndpoints[defaultRpcEndpointIndex].url,
+        });
 
-      if (domainIsConnectedDapp && process.env.MULTICHAIN_V1) {
-        SelectedNetworkController.setNetworkClientIdForDomain(
-          origin,
-          networkConfigurationId,
-        );
-      } else {
-        CurrencyRateController.updateExchangeRate(ticker);
+        const networkConfigurationId =
+          rpcEndpoints[defaultRpcEndpointIndex].networkClientId;
 
-        const { networkClientId } = rpcEndpoints[defaultRpcEndpointIndex];
+        if (domainIsConnectedDapp && process.env.MULTICHAIN_V1) {
+          SelectedNetworkController.setNetworkClientIdForDomain(
+            origin,
+            networkConfigurationId,
+          );
+        } else {
+          // Update exchange rate before switching network
+          await CurrencyRateController.updateExchangeRate(ticker);
 
-        await NetworkController.setActiveNetwork(networkClientId);
+          const { networkClientId } = rpcEndpoints[defaultRpcEndpointIndex];
+          
+          // Ensure we have a valid networkClientId
+          if (!networkClientId) {
+            Logger.error('NetworkSelector::onSetRpcTarget - Missing networkClientId');
+            return;
+          }
+
+          // Set active network and wait for completion
+          await NetworkController.setActiveNetwork(networkClientId);
+          Logger.log('NetworkSelector::onSetRpcTarget - Network switch successful');
+        }
+
+        sheetRef.current?.onCloseBottomSheet();
+        trackEvent(MetaMetricsEvents.NETWORK_SWITCHED, {
+          chain_id: getDecimalChainId(chainId),
+          from_network: selectedNetworkName,
+          to_network: nickname,
+        });
+      } catch (error) {
+        Logger.error('NetworkSelector::onSetRpcTarget - Failed to switch network:', error);
       }
-
-      sheetRef.current?.onCloseBottomSheet();
-      trackEvent(MetaMetricsEvents.NETWORK_SWITCHED, {
-        chain_id: getDecimalChainId(chainId),
-        from_network: selectedNetworkName,
-        to_network: nickname,
-      });
     }
   };
 
@@ -364,8 +389,14 @@ const NetworkSelector = () => {
         ticker = TESTNET_TICKER_SYMBOLS.SEPOLIA as InfuraNetworkType;
       }
 
-      const networkConfiguration =
-        networkConfigurations[BUILT_IN_NETWORKS[type].chainId];
+      let chainId;
+      if (type === RWA_METAVERSE) {
+        chainId = NETWORKS_CHAIN_ID.RWA_METAVERSE;
+      } else {
+        chainId = BUILT_IN_NETWORKS[type]?.chainId;
+      }
+
+      const networkConfiguration = networkConfigurations[chainId];
 
       const clientId =
         networkConfiguration?.rpcEndpoints[
@@ -536,6 +567,65 @@ const NetworkSelector = () => {
         }}
         isSelected={chainId === selectedChainId}
         onPress={() => onNetworkChange(LINEA_MAINNET)}
+      />
+    );
+  };
+
+  const renderRwaMetaverse = () => {
+    const { name: rwaMetaverseName, chainId, rpcEndpoint } = Networks[RWA_METAVERSE];
+    const name = networkConfigurations?.[chainId]?.name ?? rwaMetaverseName;
+
+    // console.debug("CHECK", name, chainId, rpcEndpoint);
+
+    if (isNetworkUiRedesignEnabled() && isNoSearchResults(RWA_METAVERSE)) return null;
+
+    if (isNetworkUiRedesignEnabled()) {
+      return (
+        <Cell
+          key={chainId}
+          variant={CellVariant.SelectWithMenu}
+          title={name}
+          secondaryText={hideKeyFromUrl(rpcEndpoint)}
+          avatarProps={{
+            variant: AvatarVariant.Network,
+            name: rwaMetaverseName,
+            imageSource: images.R_TOKEN,
+            size: AvatarSize.Sm,
+          }}
+          isSelected={chainId === selectedChainId}
+          onPress={() => onNetworkChange(RWA_METAVERSE)}
+          style={styles.networkCell}
+          buttonIcon={IconName.MoreVertical}
+          buttonProps={{
+            onButtonClick: () => {
+              openModal(chainId, false, RWA_METAVERSE, true);
+            },
+          }}
+          onTextClick={() =>
+            openRpcModal({
+              chainId,
+              networkName: rwaMetaverseName,
+            })
+          }
+          onLongPress={() => {
+            openModal(chainId, false, RWA_METAVERSE, true);
+          }}
+        />
+      );
+    }
+
+    return (
+      <Cell
+        variant={CellVariant.Select}
+        title={name}
+        avatarProps={{
+          variant: AvatarVariant.Network,
+          name: rwaMetaverseName,
+          imageSource: images.R_TOKEN,
+          size: avatarSize,
+        }}
+        isSelected={chainId === selectedChainId}
+        onPress={() => onNetworkChange(RWA_METAVERSE)}
       />
     );
   };
@@ -863,6 +953,7 @@ const NetworkSelector = () => {
           renderEnabledNetworksTitle()}
         {renderMainnet()}
         {renderLineaMainnet()}
+        {renderRwaMetaverse()}
         {renderRpcNetworks()}
         {isNetworkUiRedesignEnabled() &&
           searchString.length === 0 &&
@@ -883,6 +974,25 @@ const NetworkSelector = () => {
       />
     </>
   );
+
+  useEffect(() => {
+    if (!networkConfigurations[`0x${Number(18688).toString(16)}`]) {
+      const { NetworkController } = Engine.context;
+      console.log('Adding RWA Metaverse network with config:', RWA_METAVERSE_CONFIG);
+
+      try {
+        NetworkController.addNetwork(
+          RWA_METAVERSE_CONFIG.nickname,
+          RWA_METAVERSE_CONFIG.rpcEndpoints[0].url,
+          RWA_METAVERSE_CONFIG.chainId,
+          RWA_METAVERSE_CONFIG.ticker,
+          RWA_METAVERSE_CONFIG.blockExplorerUrl,
+        );
+      } catch (error) {
+        console.error('Error adding network:', error);
+      }
+    }
+  }, [networkConfigurations]);
 
   return (
     <BottomSheet ref={sheetRef}>

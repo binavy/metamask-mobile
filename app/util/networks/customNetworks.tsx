@@ -1,10 +1,58 @@
 import { toHex } from '@metamask/controller-utils';
+import { NETWORKS_CHAIN_ID, RWA_METAVERSE } from '../../../app/constants/network';
+import images from '../../../app/images/image-icons';
 
 /* eslint-disable @typescript-eslint/no-require-imports, import/no-commonjs */
 const InfuraKey = process.env.MM_INFURA_PROJECT_ID;
-const infuraProjectId = InfuraKey === 'null' ? '' : InfuraKey;
+const infuraProjectId = InfuraKey;
+
+export const RWA_METAVERSE_CONFIG = {
+  chainId: `0x${Number(18688).toString(16)}`,
+  nickname: 'RWA Metaverse',
+  rpcEndpoints: [
+    {
+      url: 'https://rwa.binavy.com',
+      networkClientId: `rpc_${`0x${Number(18688).toString(16)}`}_0`,
+      type: 'custom',
+      name: 'RWA Metaverse Main',
+    }
+  ],
+  defaultRpcEndpointIndex: 0,
+  ticker: 'R',
+  nativeCurrency: 'R',
+  name: 'RWA Metaverse',
+  blockExplorerUrls: ['http://35.220.178.218'],
+  defaultBlockExplorerUrlIndex: 0,
+  imageSource: images.R_TOKEN,
+  imageUrl: images.R_TOKEN,
+};
+
+export const Networks = {
+  [RWA_METAVERSE]: {
+    name: 'RWA Metaverse',
+    chainId: `0x${Number(18688).toString(16)}`,
+    rpcEndpoint: 'https://rwa.binavy.com',
+    networkClientId: `rpc_${`0x${Number(18688).toString(16)}`}_0`,
+    type: 'custom',
+  }
+};
 
 export const PopularList = [
+  {
+    name: 'RWA Metaverse',
+    chainId: `0x${Number(18688).toString(16)}`,
+    shortName: 'RWA',
+    networkType: RWA_METAVERSE,
+    imageSource: images.R_TOKEN,
+    rpcUrl: 'https://rwa.binavy.com',
+    ticker: 'R',
+    tickerId: 'r',
+    rpcPrefs: {
+      blockExplorerUrl: 'http://35.220.178.218',
+      imageSource: images.R_TOKEN,
+      imageUrl: images.R_TOKEN,
+    },
+  },
   {
     chainId: toHex('43114'),
     nickname: 'Avalanche C-Chain',
@@ -12,8 +60,8 @@ export const PopularList = [
     ticker: 'AVAX',
     rpcPrefs: {
       blockExplorerUrl: 'https://snowtrace.io',
-      imageUrl: 'AVAX',
-      imageSource: require('../../images/avalanche.png'),
+      imageSource: images.AVALANCHE,
+      imageUrl: images.AVALANCHE,
     },
   },
   {
@@ -23,8 +71,8 @@ export const PopularList = [
     ticker: 'ETH',
     rpcPrefs: {
       blockExplorerUrl: 'https://arbiscan.io',
-      imageUrl: 'AETH',
-      imageSource: require('../../images/arbitrum.png'),
+      imageSource: images.ARBITRUM,
+      imageUrl: images.ARBITRUM,
     },
   },
   {
@@ -35,8 +83,8 @@ export const PopularList = [
     warning: true,
     rpcPrefs: {
       blockExplorerUrl: 'https://bscscan.com',
-      imageUrl: 'BNB',
-      imageSource: require('../../images/binance.png'),
+      imageSource: images.BINANCE,
+      imageUrl: images.BINANCE,
     },
   },
   {
@@ -47,8 +95,8 @@ export const PopularList = [
     warning: true,
     rpcPrefs: {
       blockExplorerUrl: 'https://basescan.org',
-      imageUrl: 'BASE',
-      imageSource: require('../../images/base.png'),
+      imageSource: images.BASE,
+      imageUrl: images.BASE,
     },
   },
   {
@@ -58,8 +106,8 @@ export const PopularList = [
     ticker: 'ETH',
     rpcPrefs: {
       blockExplorerUrl: 'https://optimistic.etherscan.io',
-      imageUrl: 'OPTIMISM',
-      imageSource: require('../../images/optimism.png'),
+      imageSource: images.OPTIMISM,
+      imageUrl: images.OPTIMISM,
     },
   },
   {
@@ -69,8 +117,8 @@ export const PopularList = [
     ticker: 'PALM',
     rpcPrefs: {
       blockExplorerUrl: 'https://explorer.palm.io',
-      imageUrl: 'PALM',
-      imageSource: require('../../images/palm.png'),
+      imageSource: images.PALM,
+      imageUrl: images.PALM,
     },
   },
   {
@@ -80,8 +128,8 @@ export const PopularList = [
     ticker: 'POL',
     rpcPrefs: {
       blockExplorerUrl: 'https://polygonscan.com',
-      imageUrl: 'POL',
-      imageSource: require('../../images/pol.png'),
+      imageSource: images.POLYGON,
+      imageUrl: images.POLYGON,
     },
   },
   {
@@ -92,8 +140,8 @@ export const PopularList = [
     warning: true,
     rpcPrefs: {
       blockExplorerUrl: 'https://explorer.zksync.io/',
-      imageUrl: 'ZK_SYNC',
-      imageSource: require('../../images/zk-sync.png'),
+      imageSource: images.ZK_SYNC,
+      imageUrl: images.ZK_SYNC,
     },
   },
 ];
@@ -112,8 +160,8 @@ export const UnpopularNetworkList = [
     warning: true,
     rpcPrefs: {
       blockExplorerUrl: 'https://ftmscan.com',
-      imageUrl: 'FTM',
-      imageSource: require('../../images/fantom.png'),
+      imageSource: images.FANTOM,
+      imageUrl: images.FANTOM,
     },
   },
   {
@@ -124,13 +172,13 @@ export const UnpopularNetworkList = [
     warning: true,
     rpcPrefs: {
       blockExplorerUrl: 'https://explorer.harmony.one',
-      imageUrl: 'ONE',
-      imageSource: require('../../images/harmony.png'),
+      imageSource: images.HARMONY,
+      imageUrl: images.HARMONY,
     },
   },
 ];
 
 export const CustomNetworkImgMapping: Record<`0x${string}`, string> = {
-  '0xe': require('../../images/flare-mainnet.png'), // Flare Mainnet
-  '0x13': require('../../images/songbird.png'), // Songbird Testnet
+  '0xe': images.FLARE_MAINNET, // Flare Mainnet
+  '0x13': images.SONGBIRD, // Songbird Testnet
 };

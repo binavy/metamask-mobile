@@ -12,6 +12,7 @@ export const NO_RPC_BLOCK_EXPLORER = 'NO_BLOCK_EXPLORER';
 export const PRIVATENETWORK = 'PRIVATENETWORK';
 export const DEFAULT_MAINNET_CUSTOM_NAME = 'Ethereum Main Custom';
 export const IPFS_DEFAULT_GATEWAY_URL = 'https://dweb.link/ipfs/';
+export const RWA_METAVERSE = 'rwa-metaverse';
 
 /**
  * @enum {string}
@@ -40,6 +41,7 @@ export const NETWORKS_CHAIN_ID = {
   SCROLL: toHex('534352'),
   BERACHAIN: toHex('80085'),
   METACHAIN_ONE: toHex('112358'),
+  RWA_METAVERSE: toHex('18688'),
 };
 
 // To add a deprecation warning to a network, add it to the array
@@ -50,6 +52,32 @@ export const DEPRECATED_NETWORKS = [
   NETWORKS_CHAIN_ID.LINEA_GOERLI,
   NETWORKS_CHAIN_ID.MUMBAI,
 ];
+
+export const BUILT_IN_NETWORKS = {
+  [MAINNET]: {
+    chainId: NETWORKS_CHAIN_ID.MAINNET,
+    nickname: 'Ethereum Main Network',
+    type: MAINNET,
+  },
+  [LINEA_MAINNET]: {
+    chainId: NETWORKS_CHAIN_ID.LINEA_MAINNET,
+    nickname: 'Linea Main Network',
+    type: LINEA_MAINNET,
+  },
+  [RWA_METAVERSE]: {
+    chainId: NETWORKS_CHAIN_ID.RWA_METAVERSE,
+    nickname: 'RWA Metaverse',
+    type: RWA_METAVERSE,
+  },
+};
+
+// Default networks
+export const MAINNET_NETWORKS = [
+  MAINNET,
+  LINEA_MAINNET,
+  RWA_METAVERSE,
+];
+
 export const CHAINLIST_CURRENCY_SYMBOLS_MAP = {
   MAINNET: 'ETH',
   OPTIMISM: 'ETH',

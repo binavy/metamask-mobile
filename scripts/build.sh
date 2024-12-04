@@ -237,13 +237,13 @@ buildIosSimulator(){
 
 buildIosSimulatorQA(){
 	prebuild_ios
-	SIM="${IOS_SIMULATOR:-"iPhone 13 Pro"}"
+	SIM="${IOS_SIMULATOR:-"iPhone 16 Pro Max"}"
 	react-native run-ios --port=$WATCHER_PORT --simulator "$SIM" --scheme "MetaMask-QA"
 }
 
 buildIosSimulatorFlask(){
 	prebuild_ios
-	SIM="${IOS_SIMULATOR:-"iPhone 13 Pro"}"
+	SIM="${IOS_SIMULATOR:-"iPhone 16 Pro Max"}"
 	react-native run-ios --port=$WATCHER_PORT --simulator "$SIM" --scheme "MetaMask-Flask"
 }
 
@@ -315,7 +315,7 @@ buildIosRelease(){
 		if [ ! -f "ios/release.xcconfig" ] ; then
 			echo "$IOS_ENV" | tr "|" "\n" > ios/release.xcconfig
 		fi
-		./node_modules/.bin/react-native run-ios --configuration Release --simulator "iPhone 13 Pro"
+		./node_modules/.bin/react-native run-ios --configuration Release --simulator "iPhone 16 Pro Max"
 	fi
 }
 
@@ -337,7 +337,7 @@ buildIosFlaskRelease(){
 		if [ ! -f "ios/release.xcconfig" ] ; then
 			echo "$IOS_ENV" | tr "|" "\n" > ios/release.xcconfig
 		fi
-		./node_modules/.bin/react-native run-ios --scheme "MetaMask-Flask"  --configuration Release --simulator "iPhone 13 Pro"
+		./node_modules/.bin/react-native run-ios --scheme "MetaMask-Flask"  --configuration Release --simulator "iPhone 16 Pro Max"
 	fi
 }
 
@@ -382,7 +382,7 @@ buildIosQA(){
 			echo "$IOS_ENV" | tr "|" "\n" > ios/release.xcconfig
 		fi
 		cd ios && xcodebuild -workspace MetaMask.xcworkspace -scheme MetaMask-QA -configuration Release -sdk iphonesimulator -derivedDataPath build
-		# ./node_modules/.bin/react-native run-ios --scheme MetaMask-QA- -configuration Release --simulator "iPhone 13 Pro"
+		# ./node_modules/.bin/react-native run-ios --scheme MetaMask-QA- -configuration Release --simulator "iPhone 16 Pro Max"
 	fi
 }
 

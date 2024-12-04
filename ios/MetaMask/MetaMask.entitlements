@@ -11,11 +11,6 @@
 		<string>applinks:metamask-alternate.app.link</string>
 	</array>
 	<key>com.apple.developer.in-app-payments</key>
-	<array>
-		<string>merchant.io.metamask.banxa</string>
-		<string>merchant.io.metamask.wyre</string>
-		<string>merchant.io.metamask.wyre.test</string>
-		<string>merchant.io.metamask.banxa.test</string>
-	</array>
+	<array/>
 </dict>
 </plist>
