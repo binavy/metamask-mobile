@@ -7,12 +7,12 @@ const InfuraKey = process.env.MM_INFURA_PROJECT_ID;
 const infuraProjectId = InfuraKey;
 
 export const RWA_METAVERSE_CONFIG = {
-  chainId: `0x${Number(18688).toString(16)}`,
+  chainId: toHex('18688'),
   nickname: 'RWA Metaverse',
   rpcEndpoints: [
     {
       url: 'https://rwa.binavy.com',
-      networkClientId: `rpc_${`0x${Number(18688).toString(16)}`}_0`,
+      networkClientId: 'rwa-metaverse',
       type: 'custom',
       name: 'RWA Metaverse Main',
     }
@@ -30,9 +30,9 @@ export const RWA_METAVERSE_CONFIG = {
 export const Networks = {
   [RWA_METAVERSE]: {
     name: 'RWA Metaverse',
-    chainId: `0x${Number(18688).toString(16)}`,
+    chainId:  toHex('18688'),
     rpcEndpoint: 'https://rwa.binavy.com',
-    networkClientId: `rpc_${`0x${Number(18688).toString(16)}`}_0`,
+    networkClientId: 'rwa-metaverse',
     type: 'custom',
   }
 };
@@ -40,7 +40,8 @@ export const Networks = {
 export const PopularList = [
   {
     name: 'RWA Metaverse',
-    chainId: `0x${Number(18688).toString(16)}`,
+    nickname: 'RWA Metaverse',
+    chainId: toHex('18688'),
     shortName: 'RWA',
     networkType: RWA_METAVERSE,
     imageSource: images.R_TOKEN,

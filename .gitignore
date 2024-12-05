@@ -43,6 +43,7 @@ android/app/google-services.json
 
 # node.js
 node_modules/
+!node_modules/@metamask
 npm-debug.log
 yarn-error.log
 .yalc

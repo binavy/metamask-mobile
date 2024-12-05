@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import Crypto from 'react-native-quick-crypto';
 import { scrypt } from 'react-native-fast-crypto';
+import { NETWORKS_CHAIN_ID, RWA_METAVERSE } from '../constants/network';
+import { Networks } from '../util/networks/customNetworks';
 import {
   AccountTrackerController,
   AccountTrackerState,
@@ -539,7 +541,30 @@ class Engine {
 
     const networkControllerOpts = {
       infuraProjectId: process.env.MM_INFURA_PROJECT_ID || NON_EMPTY,
-      state: initialState.NetworkController,
+      state: {
+        ...initialState.NetworkController,
+        networkConfigurationsByChainId: {
+          ...initialState.NetworkController?.networkConfigurationsByChainId,
+          [NETWORKS_CHAIN_ID.RWA_METAVERSE]: {
+            chainId: NETWORKS_CHAIN_ID.RWA_METAVERSE,
+            nickname: 'RWA Metaverse',
+            rpcEndpoints: [
+              {
+                url: Networks[RWA_METAVERSE].rpcEndpoint,
+                networkClientId: Networks[RWA_METAVERSE].networkClientId,
+                type: Networks[RWA_METAVERSE].type,
+                name: Networks[RWA_METAVERSE].name
+              }
+            ],
+            defaultRpcEndpointIndex: 0,
+            ticker: 'R',
+            nativeCurrency: 'R',
+            name: Networks[RWA_METAVERSE].name,
+            blockExplorerUrls: ['http://35.220.178.218'],
+            defaultBlockExplorerUrlIndex: 0
+          }
+        }
+      },
       messenger: this.controllerMessenger.getRestricted({
         name: 'NetworkController',
         allowedEvents: [],
@@ -1323,7 +1348,7 @@ class Engine {
             preferencesController?.state?.showIncomingTransactions;
 
           return Boolean(
-            hasProperty(showIncomingTransactions, currentChainId) &&
+            hasProperty(showIncomingTransactions, currentHexChainId) &&
               showIncomingTransactions?.[currentHexChainId],
           );
         },
@@ -1982,10 +2007,6 @@ class Engine {
     ///: BEGIN:ONLY_INCLUDE_IF(preinstalled-snaps,external-snaps)
     SnapController.clearState();
     ///: END:ONLY_INCLUDE_IF
-
-    // Clear selected network
-    // TODO implement this method on SelectedNetworkController
-    // SelectedNetworkController.unsetAllDomains()
 
     //Clear assets info
     TokensController.reset();

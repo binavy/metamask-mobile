@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import React, { useMemo, useCallback, useRef, useState, useEffect } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { toHex } from '@metamask/controller-utils';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -273,7 +273,7 @@ const NetworkSelector = () => {
           
           // Ensure we have a valid networkClientId
           if (!networkClientId) {
-            Logger.error('NetworkSelector::onSetRpcTarget - Missing networkClientId');
+            Logger.error(new Error('NetworkSelector::onSetRpcTarget - Missing networkClientId'));
             return;
           }
 
@@ -289,7 +289,7 @@ const NetworkSelector = () => {
           to_network: nickname,
         });
       } catch (error) {
-        Logger.error('NetworkSelector::onSetRpcTarget - Failed to switch network:', error);
+        Logger.error(new Error('NetworkSelector::onSetRpcTarget - Failed to switch network:'));
       }
     }
   };
@@ -369,8 +369,11 @@ const NetworkSelector = () => {
     Linking.openURL(strings('networks.learn_more_url'));
   };
 
-  // The only possible value types are mainnet, linea-mainnet, sepolia and linea-sepolia
-  const onNetworkChange = (type: InfuraNetworkType) => {
+  // Define a new type that includes both InfuraNetworkType and RWA_METAVERSE
+  type RWANetworkType = InfuraNetworkType | typeof RWA_METAVERSE;
+
+  // Update the onNetworkChange function signature
+  const onNetworkChange = (type: RWANetworkType) => {
     const {
       NetworkController,
       CurrencyRateController,
@@ -396,8 +399,10 @@ const NetworkSelector = () => {
         chainId = BUILT_IN_NETWORKS[type]?.chainId;
       }
 
+
       const networkConfiguration = networkConfigurations[chainId];
 
+      console.log("XXX", JSON.stringify(networkConfigurations));
       const clientId =
         networkConfiguration?.rpcEndpoints[
           networkConfiguration.defaultRpcEndpointIndex
@@ -575,8 +580,6 @@ const NetworkSelector = () => {
     const { name: rwaMetaverseName, chainId, rpcEndpoint } = Networks[RWA_METAVERSE];
     const name = networkConfigurations?.[chainId]?.name ?? rwaMetaverseName;
 
-    // console.debug("CHECK", name, chainId, rpcEndpoint);
-
     if (isNetworkUiRedesignEnabled() && isNoSearchResults(RWA_METAVERSE)) return null;
 
     if (isNetworkUiRedesignEnabled()) {
@@ -717,10 +720,14 @@ const NetworkSelector = () => {
     });
 
   const renderOtherNetworks = () => {
-    const getAllNetworksTyped =
-      getAllNetworks() as unknown as InfuraNetworkType[];
-    const getOtherNetworks = () => getAllNetworksTyped.slice(2);
-    return getOtherNetworks().map((networkType: InfuraNetworkType) => {
+    const allNetworks = useMemo(
+      () =>
+      getAllNetworks() as unknown as RWANetworkType[],
+      [],
+    );
+
+    const getOtherNetworks = () => allNetworks.slice(2);
+    return getOtherNetworks().map((networkType: RWANetworkType) => {
       const TypedNetworks = Networks as unknown as Record<
         string,
         infuraNetwork
