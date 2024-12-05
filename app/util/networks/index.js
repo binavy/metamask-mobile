@@ -251,7 +251,7 @@ const TESTNET_CHAIN_IDS = [
   ChainId[NetworkType.sepolia],
   ChainId[NetworkType['linea-goerli']],
   ChainId[NetworkType['linea-sepolia']],
-];
+].filter(chainId => chainId !== NETWORKS_CHAIN_ID.RWA_METAVERSE);
 
 /**
  * A map of testnet chainId and its faucet link

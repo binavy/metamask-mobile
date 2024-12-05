@@ -663,14 +663,9 @@ const NetworkSelector = () => {
     });
 
   const renderOtherNetworks = () => {
-    const allNetworks = useMemo(
-      () =>
-      getAllNetworks() as unknown as RWANetworkType[],
-      [],
-    );
-
-    const getOtherNetworks = () => allNetworks.slice(2);
-    return getOtherNetworks().map((networkType: RWANetworkType) => {
+    const allNetworks = getAllNetworks();
+    const getOtherNetworks = () => allNetworks.filter(networkType => networkType !== MAINNET && networkType !== RWA_METAVERSE);
+    return getOtherNetworks().map((networkType) => {
       const TypedNetworks = Networks as unknown as Record<
         string,
         infuraNetwork
