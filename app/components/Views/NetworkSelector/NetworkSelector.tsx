@@ -518,64 +518,6 @@ const NetworkSelector = () => {
     );
   };
 
-  const renderLineaMainnet = () => {
-    const { name: lineaMainnetName, chainId } = Networks['linea-mainnet'];
-    const name = networkConfigurations?.[chainId]?.name ?? lineaMainnetName;
-
-    if (isNetworkUiRedesignEnabled() && isNoSearchResults('linea-mainnet'))
-      return null;
-
-    if (isNetworkUiRedesignEnabled()) {
-      return (
-        <Cell
-          key={chainId}
-          variant={CellVariant.SelectWithMenu}
-          title={name}
-          avatarProps={{
-            variant: AvatarVariant.Network,
-            name: lineaMainnetName,
-            imageSource: images['LINEA-MAINNET'],
-            size: AvatarSize.Sm,
-          }}
-          isSelected={chainId === selectedChainId}
-          onPress={() => onNetworkChange(LINEA_MAINNET)}
-          style={styles.networkCell}
-          buttonIcon={IconName.MoreVertical}
-          secondaryText={hideKeyFromUrl(LINEA_DEFAULT_RPC_URL)}
-          buttonProps={{
-            onButtonClick: () => {
-              openModal(chainId, false, LINEA_MAINNET, true);
-            },
-          }}
-          onTextClick={() =>
-            openRpcModal({
-              chainId,
-              networkName: lineaMainnetName,
-            })
-          }
-          onLongPress={() => {
-            openModal(chainId, false, LINEA_MAINNET, true);
-          }}
-        />
-      );
-    }
-
-    return (
-      <Cell
-        variant={CellVariant.Select}
-        title={name}
-        avatarProps={{
-          variant: AvatarVariant.Network,
-          name: lineaMainnetName,
-          imageSource: images['LINEA-MAINNET'],
-          size: avatarSize,
-        }}
-        isSelected={chainId === selectedChainId}
-        onPress={() => onNetworkChange(LINEA_MAINNET)}
-      />
-    );
-  };
-
   const renderRwaMetaverse = () => {
     const { name: rwaMetaverseName, chainId, rpcEndpoint } = Networks[RWA_METAVERSE];
     const name = networkConfigurations?.[chainId]?.name ?? rwaMetaverseName;
@@ -646,7 +588,8 @@ const NetworkSelector = () => {
         isTestNet(chainId) ||
         isMainNet(chainId) ||
         chainId === CHAIN_IDS.LINEA_MAINNET ||
-        chainId === CHAIN_IDS.GOERLI
+        chainId === CHAIN_IDS.GOERLI ||
+        chainId === NETWORKS_CHAIN_ID.RWA_METAVERSE
       ) {
         return null;
       }
@@ -959,7 +902,6 @@ const NetworkSelector = () => {
           searchString.length === 0 &&
           renderEnabledNetworksTitle()}
         {renderMainnet()}
-        {renderLineaMainnet()}
         {renderRwaMetaverse()}
         {renderRpcNetworks()}
         {isNetworkUiRedesignEnabled() &&

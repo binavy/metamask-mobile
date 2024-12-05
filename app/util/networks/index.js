@@ -178,7 +178,9 @@ export const BLOCKAID_SUPPORTED_NETWORK_NAMES = {
 export default NetworkList;
 
 export const getAllNetworks = () =>
-  NetworkListKeys.filter((name) => name !== RPC);
+  NetworkListKeys.filter(
+    (name) => name !== RPC && name !== LINEA_MAINNET && name !== LINEA_GOERLI && name !== LINEA_SEPOLIA,
+  );
 
 /**
  * Checks if network is default mainnet.
